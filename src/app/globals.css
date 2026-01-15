@@ -1,0 +1,170 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== DESIGN SYSTEM (Modern Travel / Nature & Adventure) ===== */
+:root {
+    /* Colors - Earth & Ocean */
+    --color-primary: #0f5132;
+    /* Deep Forest Green */
+    --color-primary-light: #15803d;
+    /* lush green */
+    --color-secondary: #0e7490;
+    /* Ocean Teal */
+
+    --color-accent: #f43f5e;
+    /* Warm Coral / Sunset */
+    --color-accent-hover: #e11d48;
+
+    /* Neutrals - Warm */
+    --color-bg: #fcfaf8;
+    /* Warm Sand / Off-white */
+    --color-surface: #ffffff;
+    --color-text: #1c1917;
+    /* Warm Black / Stone 900 */
+    --color-text-muted: #57534e;
+    /* Stone 500 */
+
+    /* Borders */
+    --border-color: #e7e5e4;
+    /* Stone 200 */
+
+    /* Shadows - Soft & Deep */
+    --shadow-card: 0 4px 20px -2px rgba(28, 25, 23, 0.08);
+    /* Warm shadow */
+}
+
+/* Base styles */
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Playfair Display', serif;
+}
+
+/* ===== UTILITY CLASSES ===== */
+@layer components {
+
+    /* Editorial Glass */
+    .glass {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .glass-dark {
+        background: rgba(28, 25, 23, 0.8);
+        /* Stone 900 with opacity */
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Travel Card */
+    .card {
+        @apply bg-white rounded-2xl overflow-hidden transition-all duration-300;
+        box-shadow: var(--shadow-card);
+        border: 1px solid var(--border-color);
+    }
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px -4px rgba(28, 25, 23, 0.12);
+    }
+
+    /* Buttons */
+    .btn-primary {
+        @apply px-6 py-3 rounded-full font-medium text-white transition-all duration-300;
+        background-color: var(--color-primary);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--color-primary-light);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(15, 81, 50, 0.2);
+    }
+
+    .btn-accent {
+        @apply px-6 py-3 rounded-full font-medium text-white transition-all duration-300;
+        background-color: var(--color-accent);
+    }
+
+    .btn-accent:hover {
+        background-color: var(--color-accent-hover);
+        transform: translateY(-1px);
+    }
+
+    .btn-outline {
+        @apply px-6 py-3 rounded-full font-medium text-stone-700 border border-stone-300 bg-transparent transition-all duration-300;
+    }
+
+    .btn-outline:hover {
+        @apply border-stone-800 text-stone-900 bg-stone-50;
+    }
+
+    /* Inputs */
+    .input-modern {
+        @apply w-full px-5 py-3 rounded-xl border border-stone-200 bg-white text-stone-800;
+        @apply focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600;
+        @apply transition-all duration-200 placeholder:text-stone-400 font-sans;
+    }
+
+    /* Typography Helper */
+    .font-serif {
+        font-family: 'Playfair Display', serif;
+    }
+
+    .text-brand {
+        color: var(--color-primary);
+    }
+
+    .section-title {
+        @apply text-4xl font-serif font-bold text-stone-900;
+    }
+
+    .section-subtitle {
+        @apply text-lg text-stone-500 max-w-2xl mx-auto font-sans;
+    }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-in {
+    animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-100 {
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+.delay-300 {
+    animation-delay: 0.3s;
+}

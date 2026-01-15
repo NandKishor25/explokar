@@ -1,0 +1,10 @@
+import axios from 'axios';
+
+// Create an axios instance with default config
+const api = axios.create({
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+export default api;
