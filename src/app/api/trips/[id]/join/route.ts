@@ -34,9 +34,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
                 return NextResponse.json({ message: 'Request already pending' }, { status: 400 });
             }
             if (existingRequest.status === 'accepted') {
-                return NextResponse.json({ message: 'You are already a member of this trip' }, { status: 400 });
+                // Check if user is actually still a participant (handle stale data)
+                const isStillParticipant = trip.participants.some(p => p.userId === userId);
+                if (isStillParticipant) {
+                    return NextResponse.json({ message: 'You are already a member of this trip' }, { status: 400 });
+                }
+                // User was removed but JoinRequest is stale - reset to pending
             }
-            // If rejected, allow re-request by updating the existing document
+            // If rejected or stale accepted, allow re-request by updating the existing document
             existingRequest.status = 'pending';
             existingRequest.message = message || "I'd like to join your trip!";
             existingRequest.userName = name;

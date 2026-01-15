@@ -6,6 +6,57 @@ import Notification from '@/lib/models/Notification';
 
 export const dynamic = 'force-dynamic';
 
+// GET - Fetch request details
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+    try {
+        const userId = req.headers.get('x-user-id');
+        if (!userId) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+        }
+
+        await dbConnect();
+
+        const request = await JoinRequest.findById(params.id);
+        if (!request) {
+            return NextResponse.json({ message: 'Request not found' }, { status: 404 });
+        }
+
+        // Fetch the trip
+        const trip = await Trip.findById(request.tripId);
+        if (!trip) {
+            return NextResponse.json({ message: 'Trip not found' }, { status: 404 });
+        }
+
+        // Only allow trip creator or the requester to view
+        if (trip.userId !== userId && request.userId !== userId) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
+        }
+
+        return NextResponse.json({
+            request: {
+                _id: request._id,
+                tripId: request.tripId,
+                userId: request.userId,
+                userName: request.userName,
+                userPhoto: request.userPhoto,
+                status: request.status,
+                message: request.message,
+                createdAt: request.createdAt
+            },
+            trip: {
+                _id: trip._id,
+                title: trip.title,
+                destination: trip.destination,
+                imageUrl: trip.imageUrl
+            }
+        }, { status: 200 });
+
+    } catch (error) {
+        console.error('Error fetching request:', error);
+        return NextResponse.json({ message: 'Server error' }, { status: 500 });
+    }
+}
+
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
     try {
         const userId = req.headers.get('x-user-id');

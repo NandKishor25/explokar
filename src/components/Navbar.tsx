@@ -6,12 +6,15 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
 import { Compass, Search, User, LogOut, Menu, X, Bell } from 'lucide-react';
 import { useNotifications } from '@/context/NotificationContext';
+import RequestDetailsModal from './RequestDetailsModal';
 
 const Navbar = () => {
   const { currentUser, logout, loading } = useAuth();
-  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead, refreshNotifications } = useNotifications();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -111,7 +114,14 @@ const Navbar = () => {
                       notifications.map((notif) => (
                         <div
                           key={notif._id}
-                          className={`p-3 border-b border-slate-50 hover:bg-slate-50 transition-colors ${!notif.read ? 'bg-blue-50/50' : ''}`}
+                          onClick={() => {
+                            if (notif.type === 'JOIN_REQUEST' && notif.relatedId) {
+                              setSelectedRequestId(notif.relatedId);
+                              setIsModalOpen(true);
+                              markAsRead(notif._id);
+                            }
+                          }}
+                          className={`p-3 border-b border-slate-50 hover:bg-slate-50 transition-colors cursor-pointer ${!notif.read ? 'bg-blue-50/50' : ''}`}
                         >
                           <div className="flex gap-3">
                             <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden flex-shrink-0">
@@ -126,26 +136,7 @@ const Navbar = () => {
                               <p className="text-xs text-slate-400 mt-1">{new Date(notif.createdAt).toLocaleDateString()}</p>
 
                               {notif.type === 'JOIN_REQUEST' && notif.relatedId && (
-                                <div className="flex gap-2 mt-2">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleRequestAction(notif.relatedId!, 'accepted', notif._id);
-                                    }}
-                                    className="px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700"
-                                  >
-                                    Accept
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleRequestAction(notif.relatedId!, 'rejected', notif._id);
-                                    }}
-                                    className="px-3 py-1 bg-slate-200 text-slate-700 text-xs rounded-md hover:bg-slate-300"
-                                  >
-                                    Decline
-                                  </button>
-                                </div>
+                                <p className="text-xs text-blue-600 mt-1">Click to view details</p>
                               )}
                             </div>
                           </div>
@@ -159,6 +150,22 @@ const Navbar = () => {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Request Details Modal */}
+            {currentUser && (
+              <RequestDetailsModal
+                isOpen={isModalOpen}
+                onClose={() => {
+                  setIsModalOpen(false);
+                  setSelectedRequestId(null);
+                }}
+                requestId={selectedRequestId || ''}
+                currentUserId={currentUser.uid}
+                onAction={() => {
+                  refreshNotifications();
+                }}
+              />
             )}
 
             {currentUser ? (

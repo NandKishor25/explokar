@@ -27,6 +27,7 @@ const TripDetails = ({ params }: { params: { id: string } }) => {
     const [selectedParticipant, setSelectedParticipant] = useState<{ uid: string; name: string } | null>(null);
     const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
     const [joinMessage, setJoinMessage] = useState('');
+    const [hasPendingRequest, setHasPendingRequest] = useState(false);
 
     useEffect(() => {
         const fetchTripDetails = async () => {
@@ -50,6 +51,23 @@ const TripDetails = ({ params }: { params: { id: string } }) => {
             fetchTripDetails();
         }
     }, [id]);
+
+    // Check if user has a pending request for this trip
+    useEffect(() => {
+        const checkPendingRequest = async () => {
+            if (!currentUser || !id) return;
+            try {
+                const res = await fetch(`/api/trips/${id}/request-status?userId=${currentUser.uid}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setHasPendingRequest(data.status === 'pending');
+                }
+            } catch (error) {
+                console.error('Error checking request status:', error);
+            }
+        };
+        checkPendingRequest();
+    }, [currentUser, id]);
 
 
 
@@ -146,7 +164,38 @@ const TripDetails = ({ params }: { params: { id: string } }) => {
 
     const isCreator = () => {
         if (!currentUser || !trip) return false;
-        return trip.userId === currentUser.uid;
+        return currentUser.uid === trip.userId;
+    };
+
+    const handleRemoveParticipant = async (participantId: string) => {
+        if (!window.confirm('Are you sure you want to remove this participant?')) return;
+
+        try {
+            const res = await fetch(`/api/trips/${id}/participants/${participantId}`, {
+                method: 'DELETE',
+                headers: {
+                    'x-user-id': currentUser!.uid
+                }
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.message || 'Failed to remove participant');
+            }
+
+            toast.success('Participant removed');
+            // Update local state
+            setTrip(prev => {
+                if (!prev) return null;
+                return {
+                    ...prev,
+                    participants: prev.participants.filter(p => p.userId !== participantId)
+                };
+            });
+        } catch (error: any) {
+            console.error('Error removing participant:', error);
+            toast.error(error.message || 'Failed to remove participant');
+        }
     };
 
     const getTransportIcon = () => {
@@ -556,6 +605,14 @@ const TripDetails = ({ params }: { params: { id: string } }) => {
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-gray-900">{participant.name}</p>
                                 </div>
+                                {isCreator() && (
+                                    <button
+                                        onClick={() => handleRemoveParticipant(participant.userId)}
+                                        className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded hover:bg-red-100 transition-colors ml-2"
+                                    >
+                                        Remove
+                                    </button>
+                                )}
                                 {/* Rate Participant Button */}
                                 {currentUser && currentUser.uid !== participant.userId && isUserParticipant() && (
                                     <button
@@ -563,7 +620,7 @@ const TripDetails = ({ params }: { params: { id: string } }) => {
                                             setSelectedParticipant({ uid: participant.userId, name: participant.name });
                                             setIsReviewModalOpen(true);
                                         }}
-                                        className="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded hover:bg-indigo-100 transition-colors"
+                                        className="text-xs bg-indigo-50 text-indigo-600 px-2 py-1 rounded hover:bg-indigo-100 transition-colors ml-2"
                                     >
                                         Rate
                                     </button>
@@ -613,6 +670,13 @@ const TripDetails = ({ params }: { params: { id: string } }) => {
                                     className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
                                 >
                                     {joinLoading ? 'Processing...' : 'Leave Trip'}
+                                </button>
+                            ) : hasPendingRequest ? (
+                                <button
+                                    disabled
+                                    className="w-full px-4 py-2 border border-yellow-500 rounded-md shadow-sm text-sm font-medium text-yellow-700 bg-yellow-50 cursor-not-allowed"
+                                >
+                                    ✓ Request Sent
                                 </button>
                             ) : trip.participants.length < trip.maxParticipants ? (
                                 <button
