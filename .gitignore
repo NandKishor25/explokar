@@ -6,11 +6,13 @@ logs
 *.log
 
 # dotenv files
-
+.env
+.env.local
 
 # Build
 dist/
 build/
+.next/
 
 # OS generated
 .DS_Store
