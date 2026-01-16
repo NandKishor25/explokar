@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 
 import { Trip, Comment } from '@/types';
 import ReviewModal from '@/components/ReviewModal';
+import TripChatBox from '@/components/TripChatBox';
 
 const TripDetails = ({ params }: { params: { id: string } }) => {
     const { id } = params;
@@ -508,6 +509,20 @@ const TripDetails = ({ params }: { params: { id: string } }) => {
                             </div>
                         )}
                     </div>
+
+                    {/* Trip Chat - Only for participants */}
+                    {currentUser && (isUserParticipant() || isCreator()) && (
+                        <div className="mt-8">
+                            <TripChatBox
+                                tripId={id!}
+                                currentUser={{
+                                    uid: currentUser.uid,
+                                    displayName: currentUser.displayName,
+                                    photoURL: currentUser.photoURL
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 {/* Sidebar */}

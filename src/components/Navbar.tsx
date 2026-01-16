@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../hooks/useAuth';
-import { Compass, Search, User, LogOut, Menu, X, Bell } from 'lucide-react';
+import { Compass, Search, User, LogOut, Menu, X, Bell, MessageCircle } from 'lucide-react';
 import { useNotifications } from '@/context/NotificationContext';
 import RequestDetailsModal from './RequestDetailsModal';
 
@@ -87,6 +87,12 @@ const Navbar = () => {
             <Link href="/create-trip" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
               Create Trip
             </Link>
+            {currentUser && (
+              <Link href="/inbox" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors flex items-center gap-1">
+                <MessageCircle className="w-4 h-4" />
+                Inbox
+              </Link>
+            )}
 
             {currentUser && (
               <div className="relative group mr-4">
@@ -238,6 +244,13 @@ const Navbar = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   My Trips
+                </Link>
+                <Link
+                  href="/inbox"
+                  className="block px-4 py-3 rounded-lg text-base font-medium text-gray-300 hover:bg-white/10 hover:text-white"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Inbox
                 </Link>
                 <Link
                   href="/profile"

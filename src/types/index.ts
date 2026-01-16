@@ -83,3 +83,13 @@ export interface INotification {
     read: boolean;
     createdAt: string;
 }
+
+export interface ChatMessage {
+    _id: string;
+    tripId: string;
+    senderId: string;
+    senderName: string;
+    senderPhoto: string;
+    message: string;
+    createdAt: string;
+}
